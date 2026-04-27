@@ -1,0 +1,336 @@
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head><meta charset="utf-8"><title>Manuel Technique - Marquage Textile</title>
+<style>
+body{font-family:Calibri,sans-serif;font-size:11pt;color:#1a1a1a;max-width:800px;margin:40px auto;line-height:1.6}
+h1{color:#6b1d2a;font-size:22pt;border-bottom:3px solid #6b1d2a;padding-bottom:8px;margin-top:40px}
+h2{color:#1f2937;font-size:16pt;margin-top:30px}
+h3{color:#374151;font-size:13pt;margin-top:20px}
+code{font-family:Consolas,monospace;font-size:9pt;background:#f3f4f6;padding:2px 6px;border-radius:3px}
+pre{background:#f3f4f6;padding:12px;border-radius:6px;font-family:Consolas;font-size:9pt;overflow-x:auto}
+table{border-collapse:collapse;width:100%;margin:12px 0}
+th{background:#6b1d2a;color:white;padding:8px 10px;text-align:left;font-size:9pt}
+td{padding:6px 10px;border:1px solid #d1d5db;font-size:9pt}
+tr:nth-child(even) td{background:#f9fafb}
+.note{color:#6b7280;font-style:italic}
+.cover{text-align:center;padding:120px 0}
+.cover h1{font-size:36pt;border:none}
+.cover h2{font-size:24pt;color:#374151}
+ul{margin:8px 0}
+li{margin:4px 0}
+.page-break{page-break-before:always}
+</style></head><body>
+
+<div class="cover">
+<h1>MANUEL TECHNIQUE</h1>
+<h2>Marquage-Textile.fr</h2>
+<p style="font-size:14pt;color:#6b7280">Guide complet de reconstruction et maintenance</p>
+<p class="note">Version : 09/04/2026</p>
+<p class="note">Ce document permet de reconstruire integralement le site a partir de zero.</p>
+</div>
+
+<div class="page-break"></div>
+
+<h1>1. Presentation generale</h1>
+
+<h2>Stack technique</h2>
+<ul>
+<li><b>Framework</b> : Laravel 12 (PHP 8.3+)</li>
+<li><b>Admin</b> : Filament 3</li>
+<li><b>Frontend reactif</b> : Livewire 3</li>
+<li><b>CSS</b> : Tailwind CSS 3 + Vite</li>
+<li><b>Base de donnees</b> : MySQL 8</li>
+<li><b>PDF</b> : DomPDF + Factur-X (horstoeko/zugferd)</li>
+<li><b>Paiement</b> : Systempay (Banque Populaire)</li>
+<li><b>Excel</b> : Maatwebsite/Excel</li>
+<li><b>Hebergement</b> : OVH</li>
+</ul>
+
+<h2>Domaines</h2>
+<ul>
+<li>Production : <b>marquage-textile.fr</b></li>
+<li>Local : marquage-textile.test (WAMP)</li>
+<li>Admin : /admin (Filament)</li>
+</ul>
+
+<h2>Structure du projet</h2>
+<ul>
+<li>app/Models/ — 32 modeles Eloquent</li>
+<li>app/Livewire/ — 13 composants reactifs</li>
+<li>app/Filament/ — 13 resources + 8 pages + 3 widgets</li>
+<li>app/Services/ — 16 services metier</li>
+<li>app/Console/Commands/ — 25 commandes artisan</li>
+<li>app/Mail/ — 13 classes d'email</li>
+<li>database/migrations/ — 60+ migrations</li>
+</ul>
+
+<div class="page-break"></div>
+
+<h1>2. Installation depuis zero</h1>
+
+<h2>Prerequis serveur</h2>
+<ul>
+<li>PHP 8.3+ avec extensions : gd, mbstring, mysql, xml, zip, curl, intl</li>
+<li>MySQL 8+</li>
+<li>Composer 2+</li>
+<li>Node.js 18+ + npm</li>
+</ul>
+
+<h2>Etapes d'installation</h2>
+<p><b>1. Cloner le depot Git :</b></p>
+<pre>git clone [URL_DEPOT] marquage-textile
+cd marquage-textile</pre>
+
+<p><b>2. Installer les dependances PHP :</b></p>
+<pre>composer install</pre>
+
+<p><b>3. Installer les dependances JS et compiler :</b></p>
+<pre>npm install
+npm run build</pre>
+
+<p><b>4. Copier et configurer l'environnement :</b></p>
+<pre>cp .env.example .env
+php artisan key:generate</pre>
+
+<p><b>5. Creer la base de donnees et migrer :</b></p>
+<pre>mysql -u root -e "CREATE DATABASE marquage_textile"
+php artisan migrate</pre>
+
+<p><b>6. Creer le lien symbolique storage :</b></p>
+<pre>php artisan storage:link</pre>
+
+<p><b>7. Importer les donnees fournisseurs :</b></p>
+<pre>php artisan import:toptex
+php artisan import:valento
+php artisan import:solo
+php artisan import:imbretex</pre>
+
+<div class="page-break"></div>
+
+<h1>3. Configuration .env</h1>
+
+<h2>Variables essentielles</h2>
+<table>
+<tr><th>Section</th><th>Variable</th><th>Description</th></tr>
+<tr><td><b>App</b></td><td><code>APP_URL</code></td><td>URL du site (marquage-textile.fr en prod)</td></tr>
+<tr><td><b>App</b></td><td><code>APP_ENV</code></td><td>production en prod, local en dev</td></tr>
+<tr><td><b>App</b></td><td><code>APP_DEBUG</code></td><td>false en prod, true en dev</td></tr>
+<tr><td><b>DB</b></td><td><code>DB_DATABASE</code></td><td>marquage_textile</td></tr>
+<tr><td><b>DB</b></td><td><code>DB_USERNAME</code></td><td>Utilisateur MySQL</td></tr>
+<tr><td><b>DB</b></td><td><code>DB_PASSWORD</code></td><td>Mot de passe MySQL</td></tr>
+<tr><td><b>Session</b></td><td><code>SESSION_DRIVER</code></td><td>database</td></tr>
+<tr><td><b>Cache</b></td><td><code>CACHE_STORE</code></td><td>database</td></tr>
+<tr><td><b>Log</b></td><td><code>LOG_LEVEL</code></td><td><b style="color:red">warning en prod (IMPORTANT sinon le disque se remplit)</b></td></tr>
+<tr><td><b>Mail</b></td><td><code>MAIL_HOST</code></td><td>ssl0.ovh.net</td></tr>
+<tr><td><b>Mail</b></td><td><code>MAIL_PORT</code></td><td>465</td></tr>
+<tr><td><b>Mail</b></td><td><code>MAIL_USERNAME</code></td><td>contact@marquage-textile.fr</td></tr>
+<tr><td><b>Mail</b></td><td><code>MAIL_ENCRYPTION</code></td><td>ssl</td></tr>
+<tr><td><b>Mail</b></td><td><code>MAIL_FACTURES_FROM</code></td><td>factures@marquage-textile.fr</td></tr>
+<tr><td><b>Mail</b></td><td><code>MAIL_COMMANDES_FROM</code></td><td>commandes@marquage-textile.fr</td></tr>
+<tr><td><b>Mail</b></td><td><code>MAIL_PAO_FROM</code></td><td>pao@marquage-textile.fr</td></tr>
+<tr><td><b>Paiement</b></td><td><code>SYSTEMPAY_SHOP_ID</code></td><td>39994382</td></tr>
+<tr><td><b>Paiement</b></td><td><code>SYSTEMPAY_MODE</code></td><td>PRODUCTION en prod, TEST en dev</td></tr>
+<tr><td><b>Toptex</b></td><td><code>TOPTEX_URL</code></td><td>https://api.toptex.io</td></tr>
+<tr><td><b>Valento</b></td><td><code>VALENTO_URL</code></td><td>https://www.valento.es/rest</td></tr>
+<tr><td><b>Solo</b></td><td><code>SOLO_BASE_URL</code></td><td>https://api.sologroup-paris.com/BEE/V1</td></tr>
+<tr><td><b>Roly</b></td><td><code>ROLY_EMAIL</code></td><td>Email compte GorFactory</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<h1>4. Integrations fournisseurs</h1>
+<table>
+<tr><th>Fournisseur</th><th>Type API</th><th>Frequence</th><th>Commande</th><th>Notes</th></tr>
+<tr><td>Toptex</td><td>REST API</td><td>Horaire</td><td><code>import:toptex</code></td><td>Stock horaire, catalogue complet</td></tr>
+<tr><td>Valento</td><td>REST API</td><td>3h-6h uniquement</td><td><code>import:valento</code></td><td>Stock + prix, creneau limite</td></tr>
+<tr><td>Solo (SOL'S)</td><td>OAuth2 API</td><td>Horaire</td><td><code>import:solo</code></td><td>Stock horaire</td></tr>
+<tr><td>Roly</td><td>REST API (GorFactory)</td><td>En attente</td><td><code>import:roly</code></td><td>Credentials a renouveler</td></tr>
+<tr><td>Imbretex</td><td>REST API</td><td>Manuel</td><td><code>import:imbretex</code></td><td>Via page Filament</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<h1>5. Systeme d'emails (12 mails)</h1>
+<table>
+<tr><th>N</th><th>Objet</th><th>Expediteur</th><th>Dest.</th><th>Declencheur</th></tr>
+<tr><td>1</td><td>Confirmation commande</td><td>commandes@</td><td>Client</td><td>Paiement CB recu ou virement confirme</td></tr>
+<tr><td>2</td><td>Facture complete</td><td>factures@</td><td>Client</td><td>Paiement integral recu</td></tr>
+<tr><td>3</td><td>Attente virement</td><td>commandes@</td><td>Client</td><td>Client choisit virement</td></tr>
+<tr><td>4</td><td>Expiration devis</td><td>commandes@</td><td>Client</td><td>Scheduler: J-7, J-2, J-1</td></tr>
+<tr><td>5</td><td>BAT pret</td><td>pao@</td><td>Client</td><td>Admin uploade le BAT</td></tr>
+<tr><td>6</td><td>BAT modif/validation</td><td>pao@</td><td>Client</td><td>Client modifie ou valide</td></tr>
+<tr><td>7</td><td>Paiement recu</td><td>commandes@</td><td>Client</td><td>Admin valide paiement (Filament)</td></tr>
+<tr><td>8</td><td>Notif admin commande</td><td>admin@+gmail</td><td>Admin</td><td>Nouvelle commande virement</td></tr>
+<tr><td>9</td><td>BAT valide</td><td>pao@+admin@</td><td>Admin</td><td>Client valide le BAT</td></tr>
+<tr><td>10</td><td>Pret a expedier</td><td>commandes@</td><td>Client</td><td>Commande prete</td></tr>
+<tr><td>11</td><td>Facture acompte</td><td>factures@</td><td>Client</td><td>Paiement 50% recu</td></tr>
+<tr><td>12</td><td>Facture soldee</td><td>factures@</td><td>Client</td><td>Solde paye, facture regeneree</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<h1>6. Systeme de facturation</h1>
+<p><b>Les factures sont au format Factur-X (normes francaises 2027) :</b></p>
+<ul>
+<li>PDF/A-3 avec XML embarque (norme EN 16931)</li>
+<li>Numerotation sequentielle : FA-YYYYMM-XXXX</li>
+<li>Statuts : deposit (acompte), paid (payee), settled (soldee)</li>
+<li>Stockees dans storage/app/private/invoices/</li>
+<li>Disponibles 18 mois cote client, indefiniment en back-office</li>
+</ul>
+
+<h3>Flux paiement CB</h3>
+<p>Systempay IPN → markAsPaid() → facture auto + mail 1 + mail 2/11</p>
+
+<h3>Flux virement</h3>
+<p>Client confirme → mail 1 + mail 3 + mail 8<br>
+Admin "Valider paiement" (Filament) → markAsPaid() → facture + mails<br>
+Admin "Solder" → settleInvoice() → facture soldee + mail 12</p>
+
+<h3>Boutons Filament (OrderResource)</h3>
+<ul>
+<li><b>Valider paiement</b> : genere facture + envoie mails (integral ou acompte 50%)</li>
+<li><b>Solder</b> : met a jour facture en "soldee", regenere PDF, envoie mail 12</li>
+<li><b>Facturer</b> : genere facture manuellement (pour virements sans paiement prealable)</li>
+<li><b>Archiver</b> : masque la commande (visible uniquement si facture payee/soldee)</li>
+<li><b>Supprimer</b> : supprime les commandes annulees</li>
+</ul>
+
+<div class="page-break"></div>
+
+<h1>7. Taches planifiees (cron)</h1>
+<p><b>Ajouter au crontab du serveur :</b></p>
+<pre>* * * * * cd /path/to/marquage-textile && php artisan schedule:run >> /dev/null 2>&1</pre>
+
+<table>
+<tr><th>Frequence</th><th>Commande</th><th>Description</th></tr>
+<tr><td>Horaire</td><td><code>import:toptex --stock-only</code></td><td>Sync stock Toptex</td></tr>
+<tr><td>Horaire</td><td><code>import:solo --stock-only</code></td><td>Sync stock Solo</td></tr>
+<tr><td>03:15</td><td><code>import:valento --stock-only</code></td><td>Sync stock Valento (creneau 3h-6h)</td></tr>
+<tr><td>03:30</td><td><code>import:valento --prices-only</code></td><td>Sync prix Valento</td></tr>
+<tr><td>04:00</td><td><code>maintenance:cleanup</code></td><td>Nettoyage sessions/cache/logs/fichiers</td></tr>
+<tr><td>05:00</td><td><code>import:valento --stock-only</code></td><td>Sync stock Valento (2e passe)</td></tr>
+<tr><td>06:00</td><td><code>quotes:expire</code></td><td>Expiration des devis</td></tr>
+<tr><td>09:00</td><td><code>quotes:remind</code></td><td>Relance devis expirants</td></tr>
+</table>
+
+<h3>Maintenance automatique (04:00)</h3>
+<ul>
+<li>Sessions expirees > 7 jours : supprimees</li>
+<li>Cache DB expire : purge</li>
+<li>Logs > 10 Mo : tronques / > 30 jours : supprimes</li>
+<li>Fichiers BAT + clients des commandes archivees > 60 jours : supprimes (factures conservees)</li>
+<li>Devis expires > 90 jours sans commande : supprimes</li>
+<li>Notification logs > 60 jours : purges</li>
+<li>Visites > 6 mois : purgees</li>
+</ul>
+
+<div class="page-break"></div>
+
+<h1>8. Grilles tarifaires marquage</h1>
+<table>
+<tr><th>Technique</th><th>Table en base</th><th>Lignes</th><th>Parametres</th></tr>
+<tr><td>Serigraphie</td><td>serigraphie_pricings</td><td>42</td><td>Clair/fonce, 1-6 couleurs, quantites</td></tr>
+<tr><td>DTF</td><td>transfer_pricings (technique=dtf)</td><td>40</td><td>Formats A7→A3, quantites</td></tr>
+<tr><td>Transfert Offset</td><td>transfer_pricings (technique=transfert-offset)</td><td>30</td><td>Formats A7→A3</td></tr>
+<tr><td>Broderie</td><td>transfer_pricings (technique=broderie)</td><td>28</td><td>Formats A7→A4</td></tr>
+<tr><td>Transfert Serigraphique</td><td>transfer_pricings (technique=transfert-serigraphique)</td><td>30</td><td>Formats A7→A3, 1 couleur</td></tr>
+</table>
+
+<h3>Notes qualite par technique</h3>
+<table>
+<tr><th>Technique</th><th>Note</th><th>Fichiers acceptes</th></tr>
+<tr><td>Broderie</td><td>5/5</td><td>Tous fichiers (.ai, .eps, .pdf, .png, .jpg, .psd)</td></tr>
+<tr><td>Transfert Serigraphique</td><td>4.5/5</td><td>Logo vectoriel (.ai, .eps, .pdf) ou JPEG/PNG HD</td></tr>
+<tr><td>Serigraphie</td><td>4/5</td><td>Logo vectoriel (.ai, .eps, .pdf) ou JPEG/PNG HD</td></tr>
+<tr><td>Transfert Offset</td><td>4/5</td><td>Fichier sans fond (.png, .psd, .pdf, .ai, .eps)</td></tr>
+<tr><td>Tissage</td><td>3.5/5</td><td>Tous fichiers</td></tr>
+<tr><td>Badge PVC</td><td>3.5/5</td><td>Tous fichiers</td></tr>
+<tr><td>Flex / Flocage</td><td>3/5</td><td>Logo vectoriel (.ai, .eps, .pdf) ou JPEG/PNG HD</td></tr>
+<tr><td>DTG</td><td>3/5</td><td>Fichier sans fond (.png, .psd, .pdf, .ai, .eps)</td></tr>
+<tr><td>DTF</td><td>2/5</td><td>Fichier sans fond (.png, .psd, .pdf, .ai, .eps)</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<h1>9. Deploiement en production (OVH)</h1>
+
+<h2>Points critiques</h2>
+<ul>
+<li><b style="color:red">LOG_LEVEL=warning dans .env (PAS debug, sinon le disque OVH se remplit)</b></li>
+<li><b>SYSTEMPAY_MODE=PRODUCTION</b></li>
+<li><b>APP_DEBUG=false</b></li>
+<li><b>APP_ENV=production</b></li>
+</ul>
+
+<h2>Commandes de deploiement</h2>
+<pre>composer install --no-dev --optimize-autoloader
+npm install && npm run build
+php artisan migrate --force
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+php artisan storage:link</pre>
+
+<h2>Cron a configurer</h2>
+<pre>* * * * * cd /home/marquage-textile && php artisan schedule:run >> /dev/null 2>&1</pre>
+
+<h2>Probleme connu : ancien site PrestaShop</h2>
+<p class="note">L'ancien site crashait car le flux de visiteurs gonflait la memoire/disque OVH. Le nettoyage automatique (maintenance:cleanup) tourne chaque nuit a 4h pour eviter ce probleme.</p>
+
+<div class="page-break"></div>
+
+<h1>10. Structure des URLs SEO</h1>
+<table>
+<tr><th>Page</th><th>URL</th><th>Controller</th></tr>
+<tr><td>Accueil</td><td>/</td><td>HomeController</td></tr>
+<tr><td>Catalogue</td><td>/catalogue</td><td>CatalogueController@index</td></tr>
+<tr><td>Categorie</td><td>/{slug}</td><td>Catch-all → CatalogueController@category</td></tr>
+<tr><td>Produit</td><td>/{categorie}/{produit}</td><td>CatalogueController@product</td></tr>
+<tr><td>Technique</td><td>/{seo_url}</td><td>Catch-all → TechniqueController@show</td></tr>
+<tr><td>Contact</td><td>/devis?sujet=...</td><td>DemandeDevisController</td></tr>
+<tr><td>Compte client</td><td>/mon-compte/...</td><td>AccountController</td></tr>
+<tr><td>Factures client</td><td>/mon-compte/factures</td><td>AccountController@invoices</td></tr>
+<tr><td>Checkout</td><td>/commande/checkout</td><td>Livewire Checkout</td></tr>
+<tr><td>Admin</td><td>/admin</td><td>Filament</td></tr>
+</table>
+<p class="note">Redirections 301 automatiques depuis les anciennes URLs (/catalogue/{slug} et /produit/{slug}).</p>
+
+<div class="page-break"></div>
+
+<h1>11. Fonctionnalites principales</h1>
+<ul>
+<li><b>Catalogue</b> : Plus de 5000 produits de 5 fournisseurs, synchronisation automatique des stocks et prix.</li>
+<li><b>Devis en ligne</b> : Bloc devis amovible (FloatingQuote), recommandation automatique de technique (moins cher + premium), multi-logos, groupes figes.</li>
+<li><b>Commandes</b> : Checkout avec paiement CB (Systempay) ou virement, acompte 50%, flux BAT pour marquage.</li>
+<li><b>Facturation</b> : Factures Factur-X (normes 2027), PDF/A-3 avec XML, numerotation sequentielle, export Excel.</li>
+<li><b>Back-office</b> : Filament 3 avec dashboard interactif, statistiques, chat live, gestion commandes/factures/produits.</li>
+<li><b>Chat</b> : Widget chatbot cote client (FAQ + suivi commande + chat live), interface admin avec polling.</li>
+<li><b>SEO</b> : URLs optimisees, JSON-LD, meta-descriptions, contenu technique, sitemap, redirections 301.</li>
+<li><b>Securite</b> : Honeypot anti-bot sur tous les formulaires, rate limiting sur le chat, sanitization XSS.</li>
+<li><b>Maintenance</b> : Nettoyage automatique nocturne (sessions, cache, logs, fichiers, visites).</li>
+<li><b>Images</b> : Toutes les images en local (pas de hotlink fournisseur), compressees &lt; 150 Ko, nommage SEO.</li>
+</ul>
+
+<div class="page-break"></div>
+
+<h1>12. Roadmap</h1>
+<ul>
+<li><b>Module BAT previsualisation</b> : preview visuelle du marquage sur le textile, greffe sur la page devis (post-prod)</li>
+<li><b>API Roly</b> : renouveler les identifiants GorFactory</li>
+<li><b>Notifications push</b> : pour le chat live sur mobile (Service Worker)</li>
+<li><b>Couts marquage</b> : integrer les couts par technique pour le calcul de marge dans les statistiques</li>
+</ul>
+
+<h1>13. Contacts et acces</h1>
+<ul>
+<li><b>Hebergeur</b> : OVH</li>
+<li><b>Domaine</b> : marquage-textile.fr</li>
+<li><b>SIRET</b> : 794 260 954 00033</li>
+<li><b>TVA intra</b> : FR54 790260954</li>
+<li><b>Adresse</b> : 19 rue de la Resistance, 59155 Faches-Thumesnil</li>
+<li><b>Telephone</b> : 03 20 40 06 90</li>
+<li><b>Email principal</b> : contact@marquage-textile.fr</li>
+<li><b>Systempay Shop ID</b> : 39994382</li>
+</ul>
+
+</body></html>

@@ -1,0 +1,139 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Menu categories : scrollbar invisible pour effet disque */
+#cat-nav {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+#cat-nav::-webkit-scrollbar {
+    display: none;
+}
+
+/* ─── Carousel techniques de marquage (bloc carré dans hero) ─── */
+
+.carousel-wrapper {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 20px 0;
+    min-height: 360px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+}
+
+.carousel-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.45);
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    text-align: center;
+    margin-bottom: 14px;
+}
+
+.carousel-outer {
+    overflow: hidden;
+    position: relative;
+}
+
+/* Fondus bords gauche et droit (transparents car dans le hero) */
+.carousel-outer::before,
+.carousel-outer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.carousel-outer::before {
+    left: 0;
+    background: linear-gradient(to right, rgba(107,20,20,0.8), transparent);
+}
+
+.carousel-outer::after {
+    right: 0;
+    background: linear-gradient(to left, rgba(107,20,20,0.8), transparent);
+}
+
+/* Piste défilante horizontale */
+.carousel-track {
+    display: flex;
+    gap: 12px;
+    width: max-content;
+    padding: 0 12px;
+    animation: carousel-scroll 22s linear infinite;
+}
+
+.carousel-track:hover {
+    animation-play-state: paused;
+}
+
+@keyframes carousel-scroll {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+/* Carte technique */
+.technique-card {
+    display: flex;
+    flex-direction: column;
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    overflow: hidden;
+    width: 190px;
+    flex-shrink: 0;
+    cursor: default;
+    transition: background 0.2s;
+}
+
+.technique-card:hover {
+    background: rgba(255,255,255,0.18);
+}
+
+.technique-card img,
+.technique-placeholder {
+    width: 190px;
+    height: 142px;
+    object-fit: cover;
+    display: block;
+}
+
+.technique-placeholder {
+    background: rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.technique-placeholder svg {
+    width: 48px;
+    height: 48px;
+    opacity: 0.5;
+    stroke: white;
+    fill: none;
+}
+
+.technique-info {
+    padding: 8px 10px;
+}
+
+.technique-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.90);
+}
+
+.technique-min {
+    font-size: 10px;
+    color: rgba(255,255,255,0.45);
+    margin-top: 2px;
+}
