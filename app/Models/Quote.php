@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Quote extends Model
 {
+    // TODO 2b: tout le modèle Quote sera supprimé / refactor en Cart (Q1).
+    // Pour l'instant on commente les colonnes BAT/markings pour préparer le drop column en 2c.
     protected $fillable = [
         'reference',
         'user_id',
@@ -22,40 +24,40 @@ class Quote extends Model
         'total_tva',
         'total_ttc',
         'notes',
-        'markings',
+        // 'markings',                  // TODO 2c: drop column
         'expires_at',
         'accepted_at',
-        'bat_pdf',
-        'bat_status',
-        'bat_sent_at',
-        'bat_token',
-        'bat_rejection_reason',
-        'bat_logo_path',
-        'bat_logo_x',
-        'bat_logo_y',
-        'bat_logo_width',
-        'bat_logo_height',
-        'bat_format',
-        'bat_position_label',
-        'bat_svg_template',
-        'bat_client_comment',
-        'bat_decided_at',
-        'active_marking_group',
+        // 'bat_pdf',                   // TODO 2c: drop column
+        // 'bat_status',                // TODO 2c: drop column
+        // 'bat_sent_at',               // TODO 2c: drop column
+        // 'bat_token',                 // TODO 2c: drop column
+        // 'bat_rejection_reason',      // TODO 2c: drop column
+        // 'bat_logo_path',             // TODO 2c: drop column
+        // 'bat_logo_x',                // TODO 2c: drop column
+        // 'bat_logo_y',                // TODO 2c: drop column
+        // 'bat_logo_width',            // TODO 2c: drop column
+        // 'bat_logo_height',           // TODO 2c: drop column
+        // 'bat_format',                // TODO 2c: drop column
+        // 'bat_position_label',        // TODO 2c: drop column
+        // 'bat_svg_template',          // TODO 2c: drop column
+        // 'bat_client_comment',        // TODO 2c: drop column
+        // 'bat_decided_at',            // TODO 2c: drop column
+        // 'active_marking_group',      // TODO 2c: drop column
     ];
 
     protected $casts = [
         'total_ht' => 'decimal:2',
         'total_tva' => 'decimal:2',
         'total_ttc' => 'decimal:2',
-        'markings' => 'array',
+        // 'markings' => 'array',
         'expires_at' => 'datetime',
         'accepted_at' => 'datetime',
-        'bat_sent_at' => 'datetime',
-        'bat_decided_at' => 'datetime',
-        'bat_logo_x' => 'decimal:2',
-        'bat_logo_y' => 'decimal:2',
-        'bat_logo_width' => 'decimal:2',
-        'bat_logo_height' => 'decimal:2',
+        // 'bat_sent_at' => 'datetime',
+        // 'bat_decided_at' => 'datetime',
+        // 'bat_logo_x' => 'decimal:2',
+        // 'bat_logo_y' => 'decimal:2',
+        // 'bat_logo_width' => 'decimal:2',
+        // 'bat_logo_height' => 'decimal:2',
     ];
 
     public function user(): BelongsTo
@@ -78,34 +80,8 @@ class Quote extends Model
         return $query->where('status', 'draft');
     }
 
-    public function getBatClientUrlAttribute(): ?string
-    {
-        if (! $this->bat_token) {
-            return null;
-        }
-
-        return route('bat.review', ['token' => $this->bat_token]);
-    }
-
-    public function isBatApproved(): bool
-    {
-        return $this->bat_status === 'approved';
-    }
-
-    public function hasPendingBat(): bool
-    {
-        return $this->bat_status === 'sent';
-    }
-
-    public function productColorForBat(): ?ProductColor
-    {
-        $item = $this->items()
-            ->where('marking_group', $this->active_marking_group)
-            ->with('color')
-            ->first();
-
-        return $item?->color;
-    }
+    // TODO 2b: méthodes BAT supprimées (workflow BAT dégagé).
+    // Anciennes : getBatClientUrlAttribute, isBatApproved, hasPendingBat, productColorForBat
 
     // ─── Quote lifecycle ─────────────────────────────────────────
 

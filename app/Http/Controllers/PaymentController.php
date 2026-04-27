@@ -24,7 +24,8 @@ class PaymentController extends Controller
         $quote = $query->whereIn('status', ['draft', 'sent'])->first();
 
         if (! $quote || $quote->items->isEmpty()) {
-            return redirect()->route('devis')->with('quote-error', 'Votre devis est vide.');
+            // TODO 2b: redirect vers route('devis') supprimée → home temporaire
+            return redirect()->route('home')->with('quote-error', 'Votre devis est vide.');
         }
 
         // Submit quote if still draft
@@ -51,7 +52,8 @@ class PaymentController extends Controller
         } catch (\Exception $e) {
             Log::error('Stripe checkout error: ' . $e->getMessage());
 
-            return redirect()->route('devis')->with('quote-error', 'Erreur lors de la creation du paiement. Veuillez reessayer.');
+            // TODO 2b: redirect vers route('devis') supprimée → home temporaire
+            return redirect()->route('home')->with('quote-error', 'Erreur lors de la creation du paiement. Veuillez reessayer.');
         }
     }
 

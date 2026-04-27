@@ -7,7 +7,6 @@ use App\Http\Controllers\GroupShopController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\SitemapController;
-use App\Http\Controllers\TechniqueController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
@@ -48,7 +47,7 @@ Route::prefix('mon-compte')->name('account.')->middleware('auth')->group(functio
     Route::get('/commandes/{reference}/facture', [AccountController::class, 'downloadInvoice'])->name('orders.invoice');
     Route::get('/factures', [AccountController::class, 'invoices'])->name('invoices');
     Route::get('/factures/{invoice}/telecharger', [AccountController::class, 'downloadInvoiceById'])->name('invoices.download');
-    Route::get('/devis', [AccountController::class, 'quotes'])->name('quotes');
+    // TODO 2b: route /devis supprimée (système devis dégagé)
     Route::get('/adresses', [AccountController::class, 'addresses'])->name('addresses');
     Route::get('/profil', [AccountController::class, 'profile'])->name('profile');
     Route::put('/profil', [AccountController::class, 'updateProfile'])->name('profile.update');
@@ -73,21 +72,15 @@ Route::get('/produit/{product:slug}', function (\App\Models\Product $product) {
 // Redirection 301 ancien format produit
 
 
-Route::get('/mon-devis', fn () => view('catalogue.devis'))->name('mon-devis');
-Route::get('/devis', [App\Http\Controllers\DemandeDevisController::class, 'show'])->name('devis');
-Route::post('/devis', [App\Http\Controllers\DemandeDevisController::class, 'send'])->name('demande-devis.send');
+// TODO 2b: routes /mon-devis, /devis (GET+POST), /bat/* supprimées
+//   - système devis dégagé (Q1: Cart/CartItem reconstruction)
+//   - workflow BAT supprimé (Q2: pas de marquage)
+//   - DemandeDevisController supprimé (Q6)
 
 // Legal pages
 Route::get('/politique-de-confidentialite', fn () => view('legal.privacy'))->name('legal.privacy');
 Route::get('/mentions-legales', fn () => view('legal.terms'))->name('legal.terms');
 Route::get('/conditions-generales-de-vente', fn () => view('legal.cgv'))->name('legal.cgv');
-
-Route::prefix('bat')->name('bat.')->group(function () {
-    Route::get('/{token}', [App\Http\Controllers\BatController::class, 'show'])->name('review');
-    Route::post('/{token}/save', [App\Http\Controllers\BatController::class, 'save'])->name('save');
-    Route::post('/{token}/decide', [App\Http\Controllers\BatController::class, 'decide'])->name('decide');
-    Route::get('/{token}/confirmed', [App\Http\Controllers\BatController::class, 'confirmed'])->name('confirmed');
-});
 
 Route::get('/commande/checkout', function () {
     if (auth()->check()) {
@@ -114,9 +107,7 @@ Route::post('/commande/{order}/virement/confirmer', function (string $order) {
     // Mail 8: notification admin nouvelle commande
     app(\App\Services\NotificationService::class)->notifyAdminNewOrder($order);
 
-    if ($order->has_marking) {
-        return redirect()->route('account.orders.upload', $order->reference)->with('success', 'Commande confirmee ! Merci d\'effectuer le virement bancaire. En attendant, chargez vos fichiers.');
-    }
+    // TODO 2b: branche has_marking supprimée (pas de marquage sur grossiste)
     return redirect()->route('account.orders')->with('success', 'Commande confirmee ! Merci d\'effectuer le virement bancaire. Votre commande sera traitee des reception du paiement.');
 })->middleware('auth')->name('checkout.virement.confirm');
 
@@ -132,7 +123,8 @@ Route::post('/commande/{order}/virement/annuler', function (string $order) {
     \App\Models\OrderItem::where('order_id', $order->id)->delete();
     $order->delete();
 
-    return redirect()->route('mon-devis')->with('info', 'Commande annulee. Votre devis est toujours disponible.');
+    // TODO 2b: redirect cible 'mon-devis' supprimée → home temporairement
+    return redirect()->route('home')->with('info', 'Commande annulee.');
 })->middleware('auth')->name('checkout.virement.cancel');
 
 Route::get('/commande/{order}/paiement', function (string $order) {
@@ -173,12 +165,7 @@ Route::post('/systempay/ipn', function (\Illuminate\Http\Request $request) {
     return response('OK', 200);
 })->name('systempay.ipn');
 
-// BAT commande (acces par token, sans auth)
-Route::prefix('commande/bat')->name('order.bat.')->group(function () {
-    Route::get('/{token}', [App\Http\Controllers\OrderBatController::class, 'review'])->name('review');
-    Route::post('/{token}/approve', [App\Http\Controllers\OrderBatController::class, 'approve'])->name('approve');
-    Route::post('/{token}/revision', [App\Http\Controllers\OrderBatController::class, 'requestRevision'])->name('revision');
-});
+// TODO 2b: routes /commande/bat/* supprimées (workflow BAT dégagé)
 
 Route::prefix('boutique')->name('group-shop.')->group(function () {
     Route::get('/{groupShop}', [GroupShopController::class, 'show'])->name('show');
@@ -186,13 +173,11 @@ Route::prefix('boutique')->name('group-shop.')->group(function () {
     Route::get('/{groupShop}/confirmation', [GroupShopController::class, 'confirmation'])->name('confirmation');
 });
 
-// Public quote view & order tracking (no auth required)
-Route::get('/devis/{reference}/pdf', [App\Http\Controllers\Front\QuoteController::class, 'download'])->name('quote.download');
-Route::get('/devis/{reference}/voir', [App\Http\Controllers\Front\QuoteController::class, 'show'])->name('quote.show');
+// Public order tracking (no auth required)
+// TODO 2b: routes /devis/{reference}/pdf et /devis/{reference}/voir supprimées
 Route::get('/commande/{orderNumber}/suivi', [App\Http\Controllers\Front\OrderTrackingController::class, 'show'])->name('order.tracking');
 
-// Techniques index page
-Route::get('/techniques-de-marquage', [TechniqueController::class, 'index'])->name('technique.index');
+// TODO 2b: route /techniques-de-marquage supprimée (TechniqueController dégagé)
 
 // Nouvelles URLs SEO : produit sous categorie
 Route::get('/{categorySlug}/{productSlug}', function (string $categorySlug, string $productSlug) {
@@ -207,18 +192,12 @@ Route::get('/{categorySlug}/{productSlug}', function (string $categorySlug, stri
     return app(\App\Http\Controllers\CatalogueController::class)->product($category, $product);
 })->name('catalogue.product')->where(['categorySlug' => '[a-z0-9\-]+', 'productSlug' => '[a-z0-9\-]+']);
 
-// Catch-all : categorie ou technique SEO — MUST BE LAST
+// Catch-all : categorie SEO — MUST BE LAST
+// TODO 2b: lookup MarkingTechnique supprimé (techniques dégagées)
 Route::get('/{slug}', function (string $slug) {
-    // 1. Chercher une categorie
     $category = \App\Models\Category::where('slug', $slug)->where('is_active', true)->first();
     if ($category) {
         return app(\App\Http\Controllers\CatalogueController::class)->category($category);
-    }
-
-    // 2. Chercher une technique SEO
-    $technique = \App\Models\MarkingTechnique::where('seo_url', $slug)->first();
-    if ($technique) {
-        return app(\App\Http\Controllers\TechniqueController::class)->show($slug);
     }
 
     abort(404);

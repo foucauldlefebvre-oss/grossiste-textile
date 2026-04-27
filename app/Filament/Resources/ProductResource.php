@@ -7,7 +7,6 @@ use App\Filament\Resources\ProductResource\RelationManagers;
 use App\Models\BrandColor;
 use App\Models\BrandSize;
 use App\Models\Category;
-use App\Models\MarkingTechnique;
 use App\Models\PricingRule;
 use App\Models\Product;
 use App\Models\ProductColor;
@@ -366,19 +365,7 @@ class ProductResource extends Resource
                             ->columnSpanFull(),
                     ]),
 
-                // ─── SECTION MARQUAGE ───
-                Forms\Components\Section::make('Marquage')
-                    ->icon('heroicon-o-paint-brush')
-                    ->collapsed()
-                    ->schema([
-                        Forms\Components\CheckboxList::make('compatible_techniques')
-                            ->label('Techniques compatibles')
-                            ->options(fn () => MarkingTechnique::where('is_active', true)
-                                ->orderBy('sort_order')
-                                ->pluck('name', 'id'))
-                            ->columns(3)
-                            ->bulkToggleable(),
-                    ]),
+                // TODO 2b: section Marquage (compatible_techniques) supprimée (Q4)
 
                 // ─── SECTION SEO (collapsed) ───
                 Forms\Components\Section::make('SEO avancé')
@@ -518,7 +505,7 @@ class ProductResource extends Resource
     {
         return [
             RelationManagers\ColorsRelationManager::class,
-            RelationManagers\TechniqueRulesRelationManager::class,
+            // TODO 2b: TechniqueRulesRelationManager supprimé (Q4)
         ];
     }
 

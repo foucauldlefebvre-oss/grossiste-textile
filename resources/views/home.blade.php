@@ -73,9 +73,7 @@
                         <a href="{{ route('catalogue.index') }}" class="px-8 py-3.5 bg-white text-bordeaux font-semibold rounded-lg hover:bg-gray-100 transition shadow-lg shadow-bordeaux-900/30">
                             Voir le catalogue
                         </a>
-                        <a href="{{ route('devis') }}" class="px-8 py-3.5 border-2 border-white/30 text-white font-semibold rounded-lg hover:bg-white/10 transition backdrop-blur-sm">
-                            Demander un devis
-                        </a>
+                        {{-- TODO 2b: bouton "Demander un devis" supprimé (route devis dégagée) --}}
                     </div>
                     <div class="mt-10 flex items-center gap-8 justify-center lg:justify-start text-sm text-bordeaux-200">
                         <div class="flex items-center gap-2">
@@ -92,10 +90,7 @@
                         </div>
                     </div>
                 </div>
-                {{-- Carousel techniques (cadre portrait) --}}
-                <div class="hidden lg:block w-96 mx-auto">
-                    <x-carousel-techniques />
-                </div>
+                {{-- TODO 2b: carousel-techniques supprimé (composant dégagé en 2a) --}}
             </div>
         </div>
     </section>
@@ -188,10 +183,8 @@
             <h2 class="text-2xl sm:text-3xl font-bold mb-4">Vous avez un projet de personnalisation ?</h2>
             <p class="text-bordeaux-100 mb-8 max-w-2xl mx-auto">Obtenez un devis gratuit en quelques minutes. Notre equipe vous accompagne de la conception a la livraison.</p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="{{ route('devis') }}" class="px-8 py-3.5 bg-white text-bordeaux font-semibold rounded-lg hover:bg-gray-100 transition shadow-lg">
-                    Demander un devis gratuit
-                </a>
-                <a href="mailto:contact@marquage-textile.fr" class="px-8 py-3.5 border-2 border-white/30 text-white font-semibold rounded-lg hover:bg-white/10 transition">
+                {{-- TODO 2b: bouton "Demander un devis gratuit" supprimé --}}
+                <a href="mailto:contact@marquage-textile.fr" class="px-8 py-3.5 bg-white text-bordeaux font-semibold rounded-lg hover:bg-gray-100 transition shadow-lg">
                     Nous contacter
                 </a>
             </div>

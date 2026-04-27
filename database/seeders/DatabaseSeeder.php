@@ -14,8 +14,8 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@marquage-textile.fr',
         ]);
 
+        // TODO 2b: MarkingTechniqueSeeder supprimé (techniques dégagées)
         $this->call([
-            MarkingTechniqueSeeder::class,
             CategoryStructureSeeder::class,
             CategoryProductSeeder::class,
             GroupShopSeeder::class,

@@ -31,7 +31,7 @@ class Product extends Model
         'grammage',
         'cut',
         'certifications',
-        'compatible_techniques',
+        // 'compatible_techniques',  // TODO 2c: drop column (Q4)
         'filter_tags',
         'base_price',
         'supplier_price',
@@ -53,7 +53,7 @@ class Product extends Model
 
     protected $casts = [
         'certifications' => 'array',
-        'compatible_techniques' => 'array',
+        // 'compatible_techniques' => 'array',  // TODO 2c: drop column (Q4)
         'filter_tags' => 'array',
         'gallery' => 'array',
         'is_active' => 'boolean',
@@ -66,27 +66,7 @@ class Product extends Model
         'package_weight' => 'integer',
     ];
 
-    protected static function booted(): void
-    {
-        static::saved(function (Product $product) {
-            if ($product->isDirty('compatible_techniques')) {
-                $techniqueIds = $product->compatible_techniques ?? [];
-
-                // Remove rules for techniques no longer selected
-                $product->techniqueRules()
-                    ->whereNotIn('marking_technique_id', $techniqueIds)
-                    ->delete();
-
-                // Add/update rules for selected techniques (preserves existing marking_zones)
-                foreach ($techniqueIds as $techniqueId) {
-                    $product->techniqueRules()->updateOrCreate(
-                        ['marking_technique_id' => $techniqueId],
-                        ['is_compatible' => true]
-                    );
-                }
-            }
-        });
-    }
+    // TODO 2b: hook booted() supprimé — sync compatible_techniques ↔ techniqueRules dégagé (Q4)
 
     public static function generateReference(?string $supplier, ?string $categoryName, ?string $productName): string
     {
@@ -137,10 +117,7 @@ class Product extends Model
         return $this->hasManyThrough(ProductSize::class, ProductColor::class);
     }
 
-    public function techniqueRules(): HasMany
-    {
-        return $this->hasMany(ProductTechniqueRule::class);
-    }
+    // TODO 2b: relation techniqueRules() supprimée — ProductTechniqueRule dégagé (Q4)
 
     public function secondaryCategories(): BelongsToMany
     {
@@ -157,12 +134,7 @@ class Product extends Model
         return array_unique($ids);
     }
 
-    public function compatibleTechniques()
-    {
-        return $this->belongsToMany(MarkingTechnique::class, 'product_technique_rules')
-            ->wherePivot('is_compatible', true)
-            ->withPivot(['is_compatible', 'incompatibility_reason', 'marking_zones']);
-    }
+    // TODO 2b: relation compatibleTechniques() supprimée — MarkingTechnique dégagé
 
     public function toSearchableArray(): array
     {

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
-use App\Models\MarkingTechnique;
 use App\Models\Product;
 
 class HomeController extends Controller
@@ -21,10 +20,8 @@ class HomeController extends Controller
                 ->orderBy('sort_order')
                 ->limit(8)
                 ->get(),
-            'techniques' => MarkingTechnique::active()
-                ->with('constraint')
-                ->orderBy('sort_order')
-                ->get(),
+            // TODO 2b: variable 'techniques' supprimée (MarkingTechnique dégagé)
+            'techniques' => collect(),
         ]);
     }
 }

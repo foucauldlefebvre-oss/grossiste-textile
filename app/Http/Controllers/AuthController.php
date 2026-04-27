@@ -40,13 +40,8 @@ class AuthController extends Controller
 
             $request->session()->regenerate();
 
-            // Rediriger vers le devis si un devis existait
-            $hasQuote = \App\Models\Quote::where('user_id', auth()->id())
-                ->whereIn('status', ['draft', 'sent'])
-                ->whereHas('items')
-                ->exists();
-
-            return redirect()->intended($hasQuote ? route('mon-devis') : route('account.dashboard'));
+            // TODO 2b: redirection vers /mon-devis supprimée (route dégagée)
+            return redirect()->intended(route('account.dashboard'));
         }
 
         return back()->withErrors([

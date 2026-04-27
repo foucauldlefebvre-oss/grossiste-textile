@@ -114,7 +114,7 @@
                 {{-- Search + Actions --}}
                 <div class="flex items-center gap-4">
                     <livewire:search-bar />
-                    <livewire:quote-counter />
+                    {{-- TODO 2b: <livewire:quote-counter /> supprimé (Q1) --}}
 
                     @auth
                         <div class="hidden lg:flex items-center gap-3">
@@ -150,20 +150,7 @@
                 <nav class="flex items-center gap-1 h-10 text-sm">
                     <a href="{{ route('home') }}" class="px-3 py-1.5 text-gray-600 hover:text-bordeaux font-medium rounded transition">Accueil</a>
                     <a href="{{ route('catalogue.index') }}" class="px-3 py-1.5 text-gray-600 hover:text-bordeaux font-medium rounded transition">Catalogue</a>
-                    <a href="{{ route('technique.index') }}" class="px-3 py-1.5 text-gray-600 hover:text-bordeaux font-medium rounded transition">Techniques de marquage</a>
-                    <div class="relative" x-data="{ contactOpen: false }" @mouseenter="contactOpen = true" @mouseleave="contactOpen = false">
-                        <button class="px-3 py-1.5 text-gray-600 hover:text-bordeaux font-medium rounded transition flex items-center gap-1">
-                            Contact
-                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                        </button>
-                        <div x-show="contactOpen" x-transition
-                             class="absolute left-0 top-full mt-0 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-                            <a href="{{ route('devis') }}?sujet=devis" class="block px-4 py-2 text-sm text-gray-700 hover:bg-bordeaux-50 hover:text-bordeaux transition">Demande de devis</a>
-                            <a href="{{ route('devis') }}?sujet=urgent" class="block px-4 py-2 text-sm text-gray-700 hover:bg-bordeaux-50 hover:text-bordeaux transition">Demande de delais courts</a>
-                            <a href="{{ route('devis') }}?sujet=technique" class="block px-4 py-2 text-sm text-gray-700 hover:bg-bordeaux-50 hover:text-bordeaux transition">Question technique</a>
-                            <a href="{{ route('devis') }}?sujet=sav" class="block px-4 py-2 text-sm text-gray-700 hover:bg-bordeaux-50 hover:text-bordeaux transition">SAV</a>
-                        </div>
-                    </div>
+                    {{-- TODO 2b: lien Techniques de marquage supprimé + sous-menu Contact (devis) supprimé --}}
                     @auth
                         <a href="{{ route('account.dashboard') }}" class="px-3 py-1.5 text-gray-600 hover:text-bordeaux font-medium rounded transition">Mon compte</a>
                     @endauth
@@ -214,18 +201,7 @@
                 @endforeach
 
                 <div class="border-t pt-2 mt-2">
-                    <div x-data="{ contactMobile: false }">
-                        <button @click="contactMobile = !contactMobile" class="flex items-center justify-between w-full py-2 text-gray-700 font-medium">
-                            Contact
-                            <svg class="w-4 h-4 text-gray-400 transition-transform" :class="contactMobile && 'rotate-180'" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                        </button>
-                        <div x-show="contactMobile" x-collapse class="pl-4 space-y-1 pb-2">
-                            <a href="{{ route('devis') }}?sujet=devis" class="block py-1.5 text-sm text-gray-600">Demande de devis</a>
-                            <a href="{{ route('devis') }}?sujet=urgent" class="block py-1.5 text-sm text-gray-600">Demande de delais courts</a>
-                            <a href="{{ route('devis') }}?sujet=technique" class="block py-1.5 text-sm text-gray-600">Question technique</a>
-                            <a href="{{ route('devis') }}?sujet=sav" class="block py-1.5 text-sm text-gray-600">SAV</a>
-                        </div>
-                    </div>
+                    {{-- TODO 2b: sous-menu Contact mobile (devis) supprimé --}}
                     @auth
                         <a href="{{ route('account.dashboard') }}" class="block py-2 text-gray-700 font-medium">Mon compte</a>
                         <form method="POST" action="{{ route('logout') }}">
@@ -404,11 +380,7 @@
                 <div>
                     <h4 class="text-white font-semibold mb-4">Informations</h4>
                     <ul class="space-y-2 text-sm">
-                        <li><a href="{{ route('devis') }}" class="hover:text-white transition">Demander un devis</a></li>
-                        @php $footerTechniques = \App\Models\MarkingTechnique::active()->whereNotNull('seo_url')->orderBy('sort_order')->limit(4)->get(); @endphp
-                        @foreach($footerTechniques as $tech)
-                            <li><a href="/{{ $tech->seo_url }}" class="hover:text-white transition">{{ $tech->name }}</a></li>
-                        @endforeach
+                        {{-- TODO 2b: liens "Demander un devis" + bloc footerTechniques supprimés --}}
                         <li><a href="{{ route('legal.cgv') }}" class="hover:text-white transition">Conditions generales de vente</a></li>
                         <li><a href="{{ route('legal.privacy') }}" class="hover:text-white transition">Politique de confidentialite</a></li>
                         <li><a href="{{ route('legal.terms') }}" class="hover:text-white transition">Mentions legales</a></li>
