@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cart;
 use App\Models\Order;
-use App\Models\Quote;
 use App\Services\OrderService;
 use App\Services\PaymentService;
 use Illuminate\Http\Request;
@@ -13,47 +13,28 @@ class PaymentController extends Controller
 {
     public function checkout(Request $request)
     {
-        // Find the user's current draft/sent quote
-        $query = Quote::with('items');
-        if (auth()->check()) {
-            $query->where('user_id', auth()->id());
-        } else {
-            $query->whereNull('user_id')->where('session_id', session()->getId());
+        if (! auth()->check()) {
+            return redirect()->route('login');
         }
 
-        $quote = $query->whereIn('status', ['draft', 'sent'])->first();
+        $cart = Cart::with('items')->active()->where('user_id', auth()->id())->first();
 
-        if (! $quote || $quote->items->isEmpty()) {
-            // TODO 2b: redirect vers route('devis') supprimée → home temporaire
-            return redirect()->route('home')->with('quote-error', 'Votre devis est vide.');
+        if (! $cart || $cart->items->isEmpty()) {
+            return redirect()->route('cart')->with('cart-error', 'Votre panier est vide.');
         }
 
-        // Submit quote if still draft
-        if ($quote->status === 'draft') {
-            app(\App\Services\QuoteService::class)->submit($quote);
-            $quote->refresh();
-        }
+        $order = app(OrderService::class)->createFromCart($cart);
 
-        // Create order from quote
-        $orderService = app(OrderService::class);
-        $order = $orderService->createFromQuote($quote);
-
-        // If Stripe is not configured, just mark as pending and redirect
         if (config('stripe.secret') === 'sk_test_XXXX' || ! config('stripe.secret')) {
             return redirect()->route('payment.success', ['order' => $order->reference]);
         }
 
-        // Create Stripe checkout session
         try {
-            $paymentService = app(PaymentService::class);
-            $session = $paymentService->createCheckoutSession($order);
-
+            $session = app(PaymentService::class)->createCheckoutSession($order);
             return redirect()->away($session->url);
         } catch (\Exception $e) {
             Log::error('Stripe checkout error: ' . $e->getMessage());
-
-            // TODO 2b: redirect vers route('devis') supprimée → home temporaire
-            return redirect()->route('home')->with('quote-error', 'Erreur lors de la creation du paiement. Veuillez reessayer.');
+            return redirect()->route('cart')->with('cart-error', 'Erreur lors de la creation du paiement. Veuillez reessayer.');
         }
     }
 

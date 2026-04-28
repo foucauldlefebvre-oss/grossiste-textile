@@ -4,6 +4,76 @@ Toutes les modifications notables apportées au fork depuis sa création.
 
 Format : sections par étape de transformation depuis le code parent (marquage-textile.fr).
 
+## [Étape 2b] Refactor panier B2B (Cart/CartItem + Checkout/Sélecteur produit) — 2026-04-28
+
+### Architecture B2B simplifiée
+
+- **Pas de guest cart** : ajout au panier réservé aux comptes professionnels (Q2)
+- **Sidebar flottante + page `/panier` dédiée** (Q1)
+- **Sélecteur produit Livewire** : couleurs + tailles + quantités + prix dégressif live
+- **Visiteur non connecté** : prix masqués, CTA "Créer un compte gratuit pour acheter"
+
+### Migrations (3)
+
+- `create_carts_table` : panier user (status active/converted/abandoned, totals, shipping_zone, vat_exemption)
+- `create_cart_items_table` : lignes panier (FK product/color/size, quantité, prix)
+- `drop_quote_id_from_orders_table` : retrait FK orders.quote_id (Q6)
+
+### Nouveaux fichiers (10 PHP + 6 Blade)
+
+- `app/Models/Cart.php`, `CartItem.php`
+- `app/Services/CartService.php` (constants TVA + shipping zones, addItem/updateQty/recalculate/convertToOrder/abandonStaleCarts)
+- `app/Livewire/CartCounter.php`, `CartSidebar.php`, `ProductSelector.php`, `CartPage.php`, `CheckoutForm.php` (+ vues)
+- `resources/views/cart/index.blade.php`
+- `app/Filament/Resources/CartResource.php` + `Pages/ListCarts.php`, `ViewCart.php` (Q3 — CartResource minimal lecture seule pour suivi commercial)
+
+### Suppressions définitives (~20 fichiers)
+
+- Modèles : `Quote`, `QuoteItem`
+- Services : `QuoteService`, `MarkingRecommendationService`, `BatService`, `QuotePdfService` (déjà fait en 2a)
+- Livewire : `FloatingQuote`, `Checkout`
+- Filament : `QuoteResource` + Pages + RelationManager
+- Controllers : `Front\QuoteController`
+- Console : `ExpireQuotes`, `SendQuoteExpiringReminders`
+- Mails : `QuoteBatReadyMail`, `QuoteExpiringMail`
+- Vues : `account/quotes.blade.php`, `front/quote/`
+
+### Modifications (15+ fichiers)
+
+- **Routes** : ajout `/panier` (auth), retrait définitif des routes /devis et /bat (déjà commentées en 2a), `/commande/checkout` utilise `<livewire:checkout-form>`
+- **OrderService** : `createFromQuote()` → `createFromCart()`, utilise `CartService::TVA_RATE`
+- **PaymentController** : utilise `Cart` + `OrderService::createFromCart()`, redirect `/cart` au lieu de `/devis`
+- **app.blade.php** : `<livewire:cart-counter />` (badge header) + `<livewire:cart-sidebar />` (drawer)
+- **catalogue/product.blade.php** : remplace placeholder par `<livewire:product-selector :product="$product" />`
+- **OrderResource** (Filament) : `QuoteService::SHIPPING_ZONES` → `CartService::SHIPPING_ZONES` ; suppression bloc quote_id
+- **StatsOverviewWidget** : `Quote::count()` → `Cart::active()->where('total_ht', '>', 0)->count()` (Q4)
+- **DashboardChartWidget** : filter 'quotes' → 'carts'
+- **Statistics page** : `quotes_created/accepted` → `carts_created/converted` ; suppression `getTopTechniques()`
+- **MaintenanceCleanup** : `cleanExpiredQuotes()` → `abandonStaleCarts()` (30j → abandoned, 90j → suppression)
+- **routes/console.php** : suppression schedules `quotes:expire` et `quotes:remind`
+- **ChatWidget** : `getFileFormats()` retourne `[]` (MarkingTechnique dégagé), suppression bloc BAT dans `lookupOrder()`
+- **GroupShopProduct** : commenter `marking_technique_id` du fillable + relation `technique()`
+- **GroupShopOrderForm** : retrait `use QuoteService` orphelin
+- **AuthController, AccountController, account/dashboard.blade.php** : nettoyages additionnels (suppression `route('account.quotes')`, `mon-devis`)
+- **account/order-show.blade.php** : neutralisation des blocs `has_marking`, `bat_status`, `$item->technique` via `@if(false)` (TODO 2b)
+
+### Tests fonctionnels passés
+
+- ✅ `artisan about` (Application Name = "Grossiste Textile", boot OK)
+- ✅ `artisan route:list` (92 routes, aucune erreur)
+- ✅ Home `/` HTTP 200 (276 KB)
+- ✅ Catégorie `/t-shirts` HTTP 200 (357 KB)
+- ✅ Fiche produit `/bebe/baby-soft-cap` HTTP 200 (258 KB) — affiche CTA "Créer un compte" en guest
+- ✅ `/panier` guest → HTTP 302 (redirect login attendu)
+- ✅ `/admin/login` HTTP 200
+
+### Limites & TODO
+
+- Pages `account/order-show.blade.php` neutralisent les blocs BAT via `@if(false)` — à refondre proprement en étape contenu/UX
+- Étape 2c restant : DROP COLUMN sur `quotes`, `quote_items`, `orders` (BAT cols), `order_items` (marking cols), `products` (compatible_techniques)
+- Étape 2d restant : DROP TABLE pour `quotes`, `quote_items`, `marking_techniques`, `technique_*`, `serigraphie_pricings`, `transfer_pricings`, `techniques_marquage`
+- Tests automatisés : aucun pour l'instant (validation manuelle)
+
 ## [Étape 2-import] Copie catalogue depuis marquage_textile — 2026-04-28
 
 ### Données importées dans `grossiste_textile`

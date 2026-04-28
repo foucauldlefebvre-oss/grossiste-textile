@@ -77,6 +77,9 @@ Route::get('/produit/{product:slug}', function (\App\Models\Product $product) {
 //   - workflow BAT supprimé (Q2: pas de marquage)
 //   - DemandeDevisController supprimé (Q6)
 
+// Cart (auth requise — pas de guest cart sur grossiste B2B)
+Route::get('/panier', fn () => view('cart.index'))->middleware('auth')->name('cart');
+
 // Legal pages
 Route::get('/politique-de-confidentialite', fn () => view('legal.privacy'))->name('legal.privacy');
 Route::get('/mentions-legales', fn () => view('legal.terms'))->name('legal.terms');

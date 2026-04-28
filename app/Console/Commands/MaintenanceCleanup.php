@@ -2,9 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderDocument;
-use App\Models\Quote;
+use App\Services\CartService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -28,7 +29,7 @@ class MaintenanceCleanup extends Command
         $this->cleanCache($dryRun);
         $this->cleanLogs($dryRun);
         $this->cleanArchivedOrderFiles($dryRun);
-        $this->cleanExpiredQuotes($dryRun);
+        $this->abandonStaleCarts($dryRun);
         $this->cleanOldNotifications($dryRun);
         $this->cleanOldVisits($dryRun);
         $this->cleanOldChats($dryRun);
@@ -158,25 +159,26 @@ class MaintenanceCleanup extends Command
     }
 
     /**
-     * Supprime les devis expires depuis plus de 90 jours
-     * (les items et fichiers associes).
+     * Marque les paniers actifs sans modif depuis 30j comme "abandoned".
+     * Les paniers abandonnés peuvent être supprimés au-delà de 90j.
      */
-    private function cleanExpiredQuotes(bool $dryRun): void
+    private function abandonStaleCarts(bool $dryRun): void
     {
-        $cutoff = now()->subDays(90);
+        $cutoffAbandon = now()->subDays(30);
+        $cutoffDelete = now()->subDays(90);
 
-        $quotes = Quote::where('status', 'expired')
-            ->where('updated_at', '<', $cutoff)
-            ->whereDoesntHave('order')
-            ->get();
+        $toAbandon = Cart::active()->where('updated_at', '<', $cutoffAbandon)->count();
+        $this->info("Paniers actifs sans activité > 30j (à abandonner) : {$toAbandon}");
 
-        $this->info("Devis expires > 90j sans commande : {$quotes->count()}");
+        if (! $dryRun && $toAbandon > 0) {
+            app(CartService::class)->abandonStaleCarts(30);
+        }
 
-        if (! $dryRun) {
-            foreach ($quotes as $quote) {
-                $quote->items()->delete();
-                $quote->delete();
-            }
+        $oldAbandoned = Cart::abandoned()->where('updated_at', '<', $cutoffDelete)->count();
+        $this->info("Paniers abandonnés > 90j (à supprimer) : {$oldAbandoned}");
+
+        if (! $dryRun && $oldAbandoned > 0) {
+            Cart::abandoned()->where('updated_at', '<', $cutoffDelete)->delete();
         }
     }
 

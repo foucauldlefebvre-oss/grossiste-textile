@@ -25,7 +25,7 @@
                     if ($effectiveStatus === 'confirmed') {
                         if ($order->status_production === 'done') {
                             $effectiveStatus = 'in_production'; // production terminée = prêt à expédier
-                        } elseif ($order->status_prep === 'done' || $order->bat_status === 'approved') {
+                        } elseif ($order->status_prep === 'done') {
                             $effectiveStatus = 'in_production';
                         }
                     }
@@ -100,7 +100,7 @@
                     </div>
                 @endif
 
-                @if($order->has_marking)
+                @if(false /* TODO 2b: bloc has_marking retiré (workflow marquage dégagé) */)
                     @php
                         $markings = $order->quote?->markings ?? [];
                         $firstGroup = is_array($markings) ? (reset($markings) ?: []) : [];
@@ -158,9 +158,7 @@
                                         @if($item->size)
                                             <span>Taille {{ $item->size->size }}</span>
                                         @endif
-                                        @if($item->technique)
-                                            <span class="px-2 py-0.5 bg-bordeaux-50 text-bordeaux rounded">{{ $item->technique->name }}</span>
-                                        @endif
+                                        {{-- TODO 2b: bloc $item->technique retiré (relation supprimée) --}}
                                     </div>
                                 </div>
                                 <div class="text-sm text-gray-500">x {{ $item->quantity }}</div>
@@ -197,8 +195,8 @@
                     </div>
                 </div>
 
-                {{-- BAT section (commandes avec marquage) --}}
-                @if($order->has_marking && $order->bat_status !== 'none')
+                {{-- TODO 2b: section BAT retirée (workflow BAT dégagé) --}}
+                @if(false)
                     <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
                         <h2 class="font-semibold mb-3">Bon A Tirer</h2>
 

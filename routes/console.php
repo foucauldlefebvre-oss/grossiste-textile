@@ -44,13 +44,7 @@ Schedule::command('import:roly --update-stock-only')
     ->runInBackground()
     ->appendOutputTo(storage_path('logs/roly-stock.log'));
 
-Schedule::command('quotes:expire')
-    ->dailyAt('06:00')
-    ->appendOutputTo(storage_path('logs/quotes-expire.log'));
-
-Schedule::command('quotes:remind')
-    ->dailyAt('09:00')
-    ->appendOutputTo(storage_path('logs/quotes-remind.log'));
+// TODO 2b: schedules quotes:expire et quotes:remind supprimés (commandes dégagées)
 
 Schedule::command('maintenance:cleanup')
     ->dailyAt('04:00')

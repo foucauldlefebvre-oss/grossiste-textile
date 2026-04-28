@@ -124,7 +124,7 @@ class OrderResource extends Resource
                             ->content(fn ($record) => $record?->shippingAddress?->full_address ?? '-'),
                         Forms\Components\Placeholder::make('shipping_zone_info')
                             ->label('Zone')
-                            ->content(fn ($record) => \App\Services\QuoteService::SHIPPING_ZONES[$record?->shipping_zone ?? 'france']['label'] ?? 'France'),
+                            ->content(fn ($record) => \App\Services\CartService::SHIPPING_ZONES[$record?->shipping_zone ?? 'france']['label'] ?? 'France'),
                         Forms\Components\Placeholder::make('vat_exemption_info')
                             ->label('Exoneration TVA')
                             ->content(fn ($record) => match ($record?->vat_exemption) {
@@ -369,9 +369,7 @@ class OrderResource extends Resource
                         if ($record->invoice) {
                             $record->invoice->delete();
                         }
-                        if ($record->quote_id) {
-                            \App\Models\Quote::where('id', $record->quote_id)->update(['status' => 'draft', 'accepted_at' => null]);
-                        }
+                        // TODO 2b: bloc quote_id retiré (Q1 — Quote supprimé)
                         $record->delete();
                         Notification::make()->title('Commande supprimee')->success()->send();
                     })

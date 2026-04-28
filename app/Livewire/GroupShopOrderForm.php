@@ -5,7 +5,7 @@ namespace App\Livewire;
 use App\Models\GroupShop;
 use App\Models\GroupShopOrder;
 use App\Models\GroupShopProduct;
-use App\Services\QuoteService;
+// TODO 2b: use App\Services\QuoteService supprimé (service dégagé)
 use Livewire\Component;
 
 class GroupShopOrderForm extends Component

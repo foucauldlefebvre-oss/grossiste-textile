@@ -5,10 +5,9 @@ namespace App\Filament\Widgets;
 use App\Filament\Pages\Statistics as StatisticsPage;
 use App\Filament\Resources\InvoiceResource;
 use App\Filament\Resources\OrderResource;
-use App\Filament\Resources\QuoteResource;
+use App\Models\Cart;
 use App\Models\Invoice;
 use App\Models\Order;
-use App\Models\Quote;
 use App\Models\User;
 use App\Models\Visit;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
@@ -36,10 +35,9 @@ class StatsOverviewWidget extends BaseWidget
                 ->icon('heroicon-o-eye')
                 ->url(StatisticsPage::getUrl()),
 
-            Stat::make('Devis', Quote::whereIn('status', ['draft', 'sent'])->count())
-                ->icon('heroicon-o-document-text')
-                ->color('warning')
-                ->url(QuoteResource::getUrl()),
+            Stat::make('Paniers actifs', Cart::active()->where('total_ht', '>', 0)->count())
+                ->icon('heroicon-o-shopping-cart')
+                ->color('warning'),
 
             Stat::make('Commandes', $pendingOrders)
                 ->description($pendingPayment > 0 ? $pendingPayment . ' att. paiement' : null)

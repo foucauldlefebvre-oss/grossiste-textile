@@ -2,17 +2,42 @@
 
 Notes et points d'attention identifiés pendant la transformation du fork.
 
-## Étape 2b — refactor panier B2B (suite immédiate)
+## Étape 2b — refactor panier B2B (terminée 2026-04-28)
 
-- [ ] Reconstruire le panier en `Cart` / `CartItem` (Q1 décidé en plan initial)
-- [ ] Supprimer définitivement `Quote`, `QuoteItem`, `FloatingQuote`, `Checkout` (stubés en 2a)
-- [ ] Reconstruire le sélecteur produit Livewire (`<livewire:product-configurator>` retiré en 2a — placeholder en place sur la fiche produit)
-- [ ] Migrations DROP COLUMN sur `orders`, `order_items`, `quotes`, `quote_items`, `products` (BAT + markings + compatible_techniques) — étape 2c
-- [ ] Migrations DROP TABLE pour `marking_techniques`, `technique_pricings`, `technique_constraints`, `product_technique_rules`, `serigraphie_pricings`, `transfer_pricings`, `techniques_marquage` — étape 2d
-- [ ] Nettoyer ChatWidget (méthode `getFileFormats` référence `MarkingTechnique`)
-- [ ] Nettoyer `GroupShopProduct` (référence `MarkingTechnique` dans relation `technique`)
-- [ ] Nettoyer commandes Console : `GenerateSeoDescriptions`, `GenerateCategoryDescriptions` (référencent `compatible_techniques` + `MarkingTechnique`)
-- [ ] Décider du sort des `group_shops` (boutiques de groupe) — pas pertinent grossiste a priori, à dégager
+- [x] Reconstruire le panier en `Cart` / `CartItem`
+- [x] Supprimer définitivement `Quote`, `QuoteItem`, `FloatingQuote`, `Checkout`
+- [x] Reconstruire le sélecteur produit Livewire (`ProductSelector`)
+- [x] Nettoyer `ChatWidget` (méthode `getFileFormats` neutralisée)
+- [x] Nettoyer `GroupShopProduct` (relation `technique` retirée)
+
+## Étape 2c — DROP COLUMN (restant)
+
+- [ ] DROP COLUMN `has_marking`, `status_bat`, `bat_done_at`, `bat_status`, `bat_client_comment`, `bat_client_decided_at`, `bat_token` sur `orders`
+- [ ] DROP COLUMN `marking_group`, `marking_technique_id`, `marking_price_ht`, `visual_file`, `marking_zone`, `visual_colors`, `bat_pdf`, `bat_status` sur `order_items`
+- [ ] DROP COLUMN `compatible_techniques` sur `products`
+- [ ] DROP COLUMN `marking_technique_id`, `visual_file`, `marking_zone` sur `group_shop_products`
+- [ ] Une fois fait, retirer les `@if(false)` et les `TODO 2c` dans : `account/order-show.blade.php`, `ChatWidget::lookupOrder()` (select bat_status)
+
+## Étape 2d — DROP TABLE (restant)
+
+- [ ] DROP TABLE `quotes`, `quote_items`
+- [ ] DROP TABLE `marking_techniques`, `technique_pricings`, `technique_constraints`, `product_technique_rules`
+- [ ] DROP TABLE `serigraphie_pricings`, `transfer_pricings`, `techniques_marquage`
+
+## Group Shop (à décider)
+
+- [ ] Décider du sort des `group_shops` (boutiques de groupe — pas pertinent grossiste a priori, à dégager)
+- [ ] Si dégage : DROP TABLE `group_shops`, `group_shop_products`, `group_shop_orders` + suppression `GroupShopController`, `GroupShopOrderForm`, modèles, vues
+
+## Console commands à nettoyer (faible priorité)
+
+- [ ] `GenerateSeoDescriptions.php` — référence `MarkingTechnique` + `compatible_techniques` (planera si lancée)
+- [ ] `GenerateCategoryDescriptions.php` — pareil
+
+## Tests automatisés (à prévoir)
+
+- [ ] Feature tests : add to cart, view cart, checkout flow
+- [ ] À mettre en place quand le projet sera stabilisé après les étapes contenu/CSS
 
 ## Coefficients prix B2B grossiste
 

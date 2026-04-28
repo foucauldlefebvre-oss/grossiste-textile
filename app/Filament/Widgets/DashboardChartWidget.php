@@ -2,9 +2,9 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\Cart;
 use App\Models\Invoice;
 use App\Models\Order;
-use App\Models\Quote;
 use App\Models\User;
 use App\Models\Visit;
 use Filament\Widgets\ChartWidget;
@@ -26,7 +26,7 @@ class DashboardChartWidget extends ChartWidget
         return [
             'visits' => 'Visites',
             'orders' => 'Commandes',
-            'quotes' => 'Devis',
+            'carts' => 'Paniers',
             'revenue' => 'CA TTC (€)',
             'clients' => 'Nouveaux clients',
             'invoices' => 'Factures',
@@ -55,7 +55,7 @@ class DashboardChartWidget extends ChartWidget
             $values[] = match ($this->filter) {
                 'visits' => Visit::where('is_bot', false)->whereBetween('visited_at', [$dayStart, $dayEnd])->count(),
                 'orders' => Order::whereBetween('created_at', [$dayStart, $dayEnd])->where('status', '!=', 'cancelled')->count(),
-                'quotes' => Quote::whereBetween('created_at', [$dayStart, $dayEnd])->count(),
+                'carts' => Cart::whereBetween('created_at', [$dayStart, $dayEnd])->count(),
                 'revenue' => (float) Order::where('payment_status', 'paid')->whereBetween('created_at', [$dayStart, $dayEnd])->sum('total_ttc'),
                 'clients' => User::whereBetween('created_at', [$dayStart, $dayEnd])->count(),
                 'invoices' => Invoice::whereBetween('issued_at', [$dayStart, $dayEnd])->count(),
@@ -66,7 +66,7 @@ class DashboardChartWidget extends ChartWidget
         $color = match ($this->filter) {
             'visits' => '#3b82f6',
             'orders' => '#ef4444',
-            'quotes' => '#f59e0b',
+            'carts' => '#f59e0b',
             'revenue' => '#10b981',
             'clients' => '#6366f1',
             'invoices' => '#14b8a6',

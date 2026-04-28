@@ -114,7 +114,7 @@
                 {{-- Search + Actions --}}
                 <div class="flex items-center gap-4">
                     <livewire:search-bar />
-                    {{-- TODO 2b: <livewire:quote-counter /> supprimé (Q1) --}}
+                    <livewire:cart-counter />
 
                     @auth
                         <div class="hidden lg:flex items-center gap-3">
@@ -471,8 +471,8 @@
         </div>
     </div>
 
-    {{-- Floating quote drawer --}}
-    <livewire:floating-quote />
+    {{-- Cart sidebar (drawer) --}}
+    <livewire:cart-sidebar />
 
     {{-- Chat widget --}}
     <livewire:chat-widget />

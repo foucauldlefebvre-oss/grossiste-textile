@@ -13,9 +13,7 @@ class GroupShopProduct extends Model
         'product_id',
         'allowed_colors',
         'allowed_sizes',
-        'marking_technique_id',
-        'visual_file',
-        'marking_zone',
+        // TODO 2c: drop columns marking_technique_id, visual_file, marking_zone
         'fixed_price',
         'sort_order',
     ];
@@ -36,10 +34,7 @@ class GroupShopProduct extends Model
         return $this->belongsTo(Product::class);
     }
 
-    public function technique(): BelongsTo
-    {
-        return $this->belongsTo(MarkingTechnique::class, 'marking_technique_id');
-    }
+    // TODO 2b: relation technique() supprimée (MarkingTechnique dégagé)
 
     public function orders(): HasMany
     {

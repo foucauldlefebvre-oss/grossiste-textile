@@ -2,70 +2,62 @@
 
 namespace App\Services;
 
+use App\Models\Cart;
 use App\Models\Invoice;
 use App\Models\Order;
-use App\Models\Quote;
 use App\Services\InvoiceService;
 use App\Services\OrderNotificationService;
 
 class OrderService
 {
     /**
-     * Create an Order from an accepted/sent Quote.
+     * Create an Order from an active Cart.
+     * The cart is marked 'converted' upon success.
      */
-    public function createFromQuote(Quote $quote, ?float $shippingHt = 0): Order
+    public function createFromCart(Cart $cart, ?float $shippingHt = null): Order
     {
-        $quote->load('items');
+        $cart->load('items');
 
-        if ($quote->items->isEmpty()) {
-            throw new \InvalidArgumentException('Le devis est vide.');
+        if ($cart->items->isEmpty()) {
+            throw new \InvalidArgumentException('Le panier est vide.');
         }
 
-        $subtotalHt = (float) $quote->total_ht;
-        $totalHt = $subtotalHt + $shippingHt;
-        $totalTva = round($totalHt * QuoteService::TVA_RATE, 2);
+        $subtotalHt = (float) $cart->subtotal_ht;
+        $effectiveShipping = $shippingHt !== null ? $shippingHt : (float) $cart->shipping_ht;
+        $totalHt = $subtotalHt + $effectiveShipping;
+        $tvaRate = $cart->vat_exemption ? 0 : CartService::TVA_RATE;
+        $totalTva = round($totalHt * $tvaRate, 2);
         $totalTtc = round($totalHt + $totalTva, 2);
-
-        // Detecter si le devis contient du marquage
-        $hasMarking = $quote->items->contains(fn ($item) => (float) $item->marking_price_ht > 0);
 
         $order = Order::create([
             'reference' => $this->generateReference(),
-            'user_id' => $quote->user_id,
-            'quote_id' => $quote->id,
+            'user_id' => $cart->user_id,
             'status' => 'pending',
             'payment_status' => 'pending',
-            'has_marking' => $hasMarking,
-            'bat_status' => $hasMarking ? 'pending' : 'none',
             'subtotal_ht' => $subtotalHt,
-            'shipping_ht' => $shippingHt,
+            'shipping_ht' => $effectiveShipping,
+            'shipping_zone' => $cart->shipping_zone,
+            'shipping_per_parcel' => $cart->shipping_per_parcel,
             'total_ht' => $totalHt,
             'total_tva' => $totalTva,
             'total_ttc' => $totalTtc,
+            'vat_exemption' => $cart->vat_exemption,
         ]);
 
-        // Copy quote items to order items
-        foreach ($quote->items as $item) {
+        foreach ($cart->items as $item) {
             $order->items()->create([
-                'marking_group' => $item->marking_group ?? 0,
                 'product_id' => $item->product_id,
                 'product_color_id' => $item->product_color_id,
                 'product_size_id' => $item->product_size_id,
-                'marking_technique_id' => $item->marking_technique_id,
                 'quantity' => $item->quantity,
                 'unit_price_ht' => $item->unit_price_ht,
-                'marking_price_ht' => $item->marking_price_ht,
                 'line_total_ht' => $item->line_total_ht,
-                'visual_file' => $item->visual_file,
-                'marking_zone' => $item->marking_zone,
-                'visual_colors' => $item->visual_colors,
             ]);
         }
 
-        // Mark quote as accepted
-        $quote->update([
-            'status' => 'accepted',
-            'accepted_at' => now(),
+        $cart->update([
+            'status' => 'converted',
+            'converted_at' => now(),
         ]);
 
         return $order;

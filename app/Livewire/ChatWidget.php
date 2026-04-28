@@ -76,12 +76,8 @@ class ChatWidget extends Component
 
     public function getFileFormats(): array
     {
-        return \App\Models\MarkingTechnique::where('is_active', true)
-            ->whereNotNull('file_formats')
-            ->orderBy('sort_order')
-            ->get(['name', 'file_formats'])
-            ->map(fn ($t) => ['name' => $t->name, 'formats' => $t->file_formats])
-            ->toArray();
+        // TODO 2b: MarkingTechnique dégagé. Méthode neutralisée.
+        return [];
     }
 
     // ─── Order lookup (lecture seule) ────────────────────
@@ -95,7 +91,8 @@ class ChatWidget extends Component
         }
 
         // Lecture seule : on ne retourne que le statut texte
-        $order = Order::where('reference', $ref)->first(['status', 'payment_status', 'reference', 'bat_status', 'status_prep', 'status_production', 'status_shipping', 'shipped_at', 'tracking_number']);
+        // TODO 2c: bat_status à retirer du select() après drop column
+        $order = Order::where('reference', $ref)->first(['status', 'payment_status', 'reference', 'status_prep', 'status_production', 'status_shipping', 'shipped_at', 'tracking_number']);
 
         if (! $order) {
             $this->orderStatus = 'Aucune commande trouvee avec la reference "' . e($ref) . '".';
@@ -113,16 +110,7 @@ class ChatWidget extends Component
             default => '',
         };
 
-        // BAT
-        if ($order->bat_status && $order->bat_status !== 'none') {
-            $steps[] = match ($order->bat_status) {
-                'pending' => 'BAT en attente',
-                'sent' => 'BAT envoye — en attente de validation',
-                'approved' => 'BAT valide',
-                'revision_requested' => 'BAT en cours de modification',
-                default => '',
-            };
-        }
+        // TODO 2b: bloc BAT supprimé (workflow BAT dégagé)
 
         // Préparation & Production
         if ($order->status_prep === 'done' && $order->status_production !== 'done') {

@@ -195,9 +195,8 @@
                     @endif
                 </div>
 
-                {{-- TODO 2b: <livewire:product-configurator> supprimé.
-                     À reconstruire en sélecteur B2B simple (couleur + taille + qté). --}}
-                <p class="text-sm text-gray-500 italic">Sélecteur produit en cours de reconstruction (étape 2b).</p>
+                {{-- Sélecteur B2B : couleurs + tailles + qté + ajout panier --}}
+                <livewire:product-selector :product="$product" />
 
             </div>
         </div>

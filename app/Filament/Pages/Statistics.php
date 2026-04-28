@@ -2,10 +2,10 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\Cart;
 use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\Quote;
 use App\Models\User;
 use App\Models\Visit;
 use Filament\Forms\Components\DatePicker;
@@ -73,8 +73,8 @@ class Statistics extends Page implements HasForms
             'bot_visits' => Visit::where('is_bot', true)->whereBetween('visited_at', [$from, $to])->count(),
             'new_clients' => User::whereBetween('created_at', [$from, $to])->count(),
             'total_clients' => User::count(),
-            'quotes_created' => Quote::whereBetween('created_at', [$from, $to])->count(),
-            'quotes_accepted' => Quote::where('status', 'accepted')->whereBetween('accepted_at', [$from, $to])->count(),
+            'carts_created' => Cart::whereBetween('created_at', [$from, $to])->count(),
+            'carts_converted' => Cart::converted()->whereBetween('converted_at', [$from, $to])->count(),
             'orders_created' => Order::whereBetween('created_at', [$from, $to])->count(),
             'orders_paid' => Order::where('payment_status', 'paid')->whereBetween('created_at', [$from, $to])->count(),
             'revenue_ht' => (float) Order::where('payment_status', 'paid')->whereBetween('created_at', [$from, $to])->sum('total_ht'),
@@ -107,28 +107,7 @@ class Statistics extends Page implements HasForms
             ->toArray();
     }
 
-    public function getTopTechniques(): array
-    {
-        $from = $this->date_from ?? now()->startOfMonth()->toDateString();
-        $to = ($this->date_to ?? now()->toDateString()) . ' 23:59:59';
-
-        return DB::table('order_items')
-            ->join('orders', 'orders.id', '=', 'order_items.order_id')
-            ->leftJoin('techniques_marquage', 'techniques_marquage.id', '=', 'order_items.marking_technique_id')
-            ->whereBetween('orders.created_at', [$from, $to])
-            ->where('orders.status', '!=', 'cancelled')
-            ->whereNotNull('order_items.marking_technique_id')
-            ->select(
-                'techniques_marquage.nom as name',
-                DB::raw('COUNT(*) as nb_lines'),
-                DB::raw('SUM(order_items.quantity) as total_qty'),
-                DB::raw('SUM(order_items.marking_price_ht * order_items.quantity) as total_marking_ht'),
-            )
-            ->groupBy('techniques_marquage.id', 'techniques_marquage.nom')
-            ->orderByDesc('total_qty')
-            ->get()
-            ->toArray();
-    }
+    // TODO 2b: getTopTechniques() supprimée (techniques de marquage dégagées)
 
     public function getMarginData(): array
     {
