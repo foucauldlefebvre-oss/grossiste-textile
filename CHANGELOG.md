@@ -4,6 +4,47 @@ Toutes les modifications notables apportées au fork depuis sa création.
 
 Format : sections par étape de transformation depuis le code parent (marquage-textile.fr).
 
+## [Étape 2-import] Copie catalogue depuis marquage_textile — 2026-04-28
+
+### Données importées dans `grossiste_textile`
+
+8 tables copiées depuis `marquage_textile` via mysqldump puis import (FOREIGN_KEY_CHECKS=0) :
+
+| Table | Lignes |
+|-------|--------|
+| brand_colors | 1 955 |
+| brand_sizes | 575 |
+| pricing_rules | 55 |
+| categories | 224 |
+| products | 5 260 |
+| product_colors | 27 860 |
+| product_sizes | 122 346 |
+| product_categories | 2 836 |
+
+**Backups conservés** dans `/backups/` (gitignored) :
+- `marquage_textile_full_2026-04-27.sql` (37 MB) — backup intégral marquage
+- `grossiste_import_2026-04-27/` — 8 dumps individuels (39 MB)
+
+### Modifications collatérales pendant l'import
+
+- `CatalogueController::product()` : retrait du eager-load `techniqueRules` (relation supprimée en 2a)
+- `catalogue/product.blade.php` : retrait du `<livewire:product-configurator>` (composant supprimé en 2a) → remplacé par un placeholder en attendant 2b
+- `.gitignore` : ajout `/backups`
+
+### Tests fonctionnels passés
+
+- ✅ Home : HTTP 200 (275 KB)
+- ✅ Catégorie `/t-shirts` : HTTP 200 (357 KB)
+- ✅ Fiche produit `/bebe/baby-soft-cap` : HTTP 200 (254 KB)
+- ✅ `display_price` calculé correctement (3.91 EUR sur le test)
+- ✅ Stats : 127 catégories actives, 5065 produits actifs
+
+### ⚠️ État connu — prix à recalculer
+
+Les prix `base_price` actuellement en DB grossiste correspondent aux **coefficients B2C marquage-textile** (trop élevés pour du grossiste). À traiter dans une phase ultérieure :
+1. Adapter les coefficients dans `pricing_rules` selon la marge B2B grossiste
+2. Lancer `php artisan products:apply-pricing` pour recalculer `base_price` sur tous les produits
+
 ## [Étape 2a] Suppression code purement marquage — 2026-04-27
 
 ### Supprimé (~70 fichiers)

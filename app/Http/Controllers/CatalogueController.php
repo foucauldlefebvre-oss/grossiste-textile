@@ -71,12 +71,10 @@ class CatalogueController extends Controller
             }
         }
 
+        // TODO 2b: relations techniqueRules supprimées (Q4)
         $product->load([
             'category',
             'colors.sizes' => fn ($q) => $q->where('is_available', true),
-            'techniqueRules' => fn ($q) => $q->where('is_compatible', true),
-            'techniqueRules.technique.constraint',
-            'techniqueRules.technique.pricings',
         ]);
 
         return view('catalogue.product', [
