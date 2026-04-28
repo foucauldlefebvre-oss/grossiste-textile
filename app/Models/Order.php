@@ -13,19 +13,11 @@ class Order extends Model
     protected $fillable = [
         'reference',
         'user_id',
-        'quote_id',
         'shipping_address_id',
         'billing_address_id',
         'status',
         'payment_status',
         'amount_paid',
-        // 'has_marking',               // TODO 2c: drop column (Q2)
-        // 'status_bat',                // TODO 2c: drop column (Q2)
-        // 'bat_done_at',               // TODO 2c: drop column (Q2)
-        // 'bat_status',                // TODO 2c: drop column (Q2)
-        // 'bat_client_comment',        // TODO 2c: drop column (Q2)
-        // 'bat_client_decided_at',     // TODO 2c: drop column (Q2)
-        // 'bat_token',                 // TODO 2c: drop column (Q2)
         'status_prep',
         'prep_done_at',
         'status_production',
@@ -59,11 +51,8 @@ class Order extends Model
         'total_tva' => 'decimal:2',
         'total_ttc' => 'decimal:2',
         'amount_paid' => 'decimal:2',
-        // 'has_marking' => 'boolean',
-        // 'bat_client_decided_at' => 'datetime',
         'shipped_at' => 'datetime',
         'delivered_at' => 'datetime',
-        // 'bat_done_at' => 'datetime',
         'prep_done_at' => 'datetime',
         'production_done_at' => 'datetime',
         'shipping_done_at' => 'datetime',
@@ -72,11 +61,6 @@ class Order extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function quote(): BelongsTo
-    {
-        return $this->belongsTo(Quote::class);
     }
 
     public function items(): HasMany
@@ -103,9 +87,6 @@ class Order extends Model
     {
         return $this->hasMany(OrderDocument::class);
     }
-
-    // TODO 2b: méthodes BAT supprimées (workflow BAT dégagé Q2).
-    // Anciennes : batDocuments(), getBatReviewUrlAttribute()
 
     // ─── Payment helpers ──────────────────────────────────────────
 

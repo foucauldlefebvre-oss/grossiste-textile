@@ -10,13 +10,15 @@ Notes et points d'attention identifiés pendant la transformation du fork.
 - [x] Nettoyer `ChatWidget` (méthode `getFileFormats` neutralisée)
 - [x] Nettoyer `GroupShopProduct` (relation `technique` retirée)
 
-## Étape 2c — DROP COLUMN (restant)
+## Étape 2c — DROP COLUMN (terminée 2026-04-28)
 
-- [ ] DROP COLUMN `has_marking`, `status_bat`, `bat_done_at`, `bat_status`, `bat_client_comment`, `bat_client_decided_at`, `bat_token` sur `orders`
-- [ ] DROP COLUMN `marking_group`, `marking_technique_id`, `marking_price_ht`, `visual_file`, `marking_zone`, `visual_colors`, `bat_pdf`, `bat_status` sur `order_items`
-- [ ] DROP COLUMN `compatible_techniques` sur `products`
-- [ ] DROP COLUMN `marking_technique_id`, `visual_file`, `marking_zone` sur `group_shop_products`
-- [ ] Une fois fait, retirer les `@if(false)` et les `TODO 2c` dans : `account/order-show.blade.php`, `ChatWidget::lookupOrder()` (select bat_status)
+- [x] DROP COLUMN `has_marking`, `status_bat`, `bat_status`, `bat_client_comment`, `bat_client_decided_at`, `bat_token`, `bat_done_at` sur `orders`
+- [x] DROP COLUMN `marking_technique_id` (+FK), `marking_price_ht`, `visual_file`, `marking_zone`, `visual_colors`, `bat_pdf`, `bat_status` sur `order_items`
+- [x] DROP COLUMN `compatible_techniques` sur `products`
+- [x] DROP COLUMN `default_techniques` sur `categories` (orphelin trouvé pendant l'inventaire)
+- [x] Cleanup code orphelin : Order/OrderItem/Product, ChatWidget::lookupOrder
+- [ ] Pour `group_shop_products` (marking_*) : sera dégagé avec la table en 2c-bis/2d
+- [ ] `account/order-show.blade.php` : `@if(false)` peuvent rester ou être retirés à la phase contenu
 
 ## Étape 2d — DROP TABLE (restant)
 

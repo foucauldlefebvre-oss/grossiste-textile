@@ -91,7 +91,6 @@ class ChatWidget extends Component
         }
 
         // Lecture seule : on ne retourne que le statut texte
-        // TODO 2c: bat_status à retirer du select() après drop column
         $order = Order::where('reference', $ref)->first(['status', 'payment_status', 'reference', 'status_prep', 'status_production', 'status_shipping', 'shipped_at', 'tracking_number']);
 
         if (! $order) {

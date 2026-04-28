@@ -31,7 +31,6 @@ class Product extends Model
         'grammage',
         'cut',
         'certifications',
-        // 'compatible_techniques',  // TODO 2c: drop column (Q4)
         'filter_tags',
         'base_price',
         'supplier_price',
@@ -53,7 +52,6 @@ class Product extends Model
 
     protected $casts = [
         'certifications' => 'array',
-        // 'compatible_techniques' => 'array',  // TODO 2c: drop column (Q4)
         'filter_tags' => 'array',
         'gallery' => 'array',
         'is_active' => 'boolean',

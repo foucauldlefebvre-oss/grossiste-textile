@@ -4,6 +4,41 @@ Toutes les modifications notables apportées au fork depuis sa création.
 
 Format : sections par étape de transformation depuis le code parent (marquage-textile.fr).
 
+## [Étape 2c] DROP COLUMN BAT/marking — 2026-04-28
+
+### Backup DB obligatoire avant migrations
+
+- `backups/grossiste_textile_pre_2c_2026-04-28.sql` (33 MB) — backup intégral grossiste avant drop columns
+
+### Migrations (4)
+
+| Migration | Table | Colonnes droppées |
+|-----------|-------|-------------------|
+| `010001_drop_bat_columns_from_orders_table` | orders | has_marking, status_bat, bat_status, bat_client_comment, bat_client_decided_at, bat_token, bat_done_at (7 cols) |
+| `010002_drop_marking_columns_from_order_items_table` | order_items | marking_technique_id (+FK), marking_price_ht, visual_file, marking_zone, visual_colors, bat_pdf, bat_status (7 cols) |
+| `010003_drop_compatible_techniques_from_products_table` | products | compatible_techniques (1 col) |
+| `010004_drop_default_techniques_from_categories_table` | categories | default_techniques (1 col, orphelin trouvé pendant l'inventaire) |
+
+**Total : 16 colonnes droppées + 1 FK.**
+
+### Cleanup code orphelin (post drop)
+
+- `Order.php` : retrait des `// TODO 2c` + retrait de la relation `quote()` orpheline
+- `OrderItem.php` : retrait des `// TODO 2c` + relation `technique()` orpheline retirée
+- `Product.php` : retrait des `// TODO 2c` sur `compatible_techniques`
+- `ChatWidget::lookupOrder()` : retrait du `bat_status` orphelin du `select(...)`
+
+### Tests passés
+
+- ✅ artisan about (boot OK)
+- ✅ artisan route:list (92 routes)
+- ✅ Home 200, catégorie 200, fiche produit 200, /panier guest 302, /admin/login 200
+- ✅ Aucune erreur SQL dans `storage/logs/laravel.log`
+
+### Note technique — migration 010002
+
+La première tentative de migration a échoué car j'avais inclus `marking_group` dans la liste des colonnes à drop, alors qu'elle n'existait que sur `quote_items` (pas sur `order_items`). Conséquence : la `dropForeign` avait été exécutée mais pas les `dropColumn`. La migration corrigée vérifie l'existence de la FK avant de tenter `dropForeign` (idempotent), puis drop les bonnes colonnes.
+
 ## [Étape 2b] Refactor panier B2B (Cart/CartItem + Checkout/Sélecteur produit) — 2026-04-28
 
 ### Architecture B2B simplifiée
